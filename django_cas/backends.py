@@ -5,8 +5,8 @@ from urlparse import urljoin
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from cas.models import User, Tgt, PgtIOU
-from cas.utils import cas_response_callbacks
+from django_cas.models import User, Tgt, PgtIOU
+from django_cas.utils import cas_response_callbacks
 
 __all__ = ['CASBackend']
 
@@ -126,11 +126,14 @@ class CASBackend(object):
         if not username:
             return None
         try:
-            user = User.objects.get(username__iexact=username)
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
-            # user will have an "unusable" password
-            user = User.objects.create_user(username, '')
-            user.save()
+            if settings.CAS_USER_CREATION:
+                # user will have an "unusable" password
+                user = User.objects.create_user(username, '')
+                user.save()
+            else:
+                return None
         return user
 
     def get_user(self, user_id):

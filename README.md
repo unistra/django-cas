@@ -21,7 +21,7 @@ https://bitbucket.org/cpcc/django-cas/overview
 Add the following to middleware if you want to use CAS::
     
     MIDDLEWARE_CLASSES = (
-    'cas.middleware.CASMiddleware',
+    'django_cas.middleware.CASMiddleware',
     )
     
 
@@ -46,7 +46,7 @@ You will need to setup middleware to handle the use of proxies.
 Add a setting ``PROXY_DOMAIN`` of the domain you want the client to use.  Then add
 
     MIDDLEWARE_CLASSES = (
-    'cas.middleware.ProxyMiddleware',
+    'django_cas.middleware.ProxyMiddleware',
     )
 
 This middleware needs to be added before the django ``common`` middleware.
@@ -85,7 +85,7 @@ enabling this setting will raise an ImproperlyConfigured:
 
 Then, add the ``gateway`` decorator to a view:
 
-    from cas.decorators import gateway
+    from django_cas.decorators import gateway
 
     @gateway()
     def foo(request):

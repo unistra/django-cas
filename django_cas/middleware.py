@@ -10,10 +10,28 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.core.exceptions import ImproperlyConfigured
 
-from cas.exceptions import CasTicketException
-from cas.views import login as cas_login, logout as cas_logout
+from django_cas.exceptions import CasTicketException
+from django_cas.views import login as cas_login, logout as cas_logout
 
 __all__ = ['CASMiddleware']
+
+
+def cas_request_logout_allowed(request):
+    """ Checks if the remote server is allowed to send cas logout request
+    If nothing is set in the CAS_LOGOUT_REQUEST_ALLOWED parameter, all remote
+    servers are allowed. Be careful !
+    """
+    from socket import gethostbyaddr
+    remote_address = request.META.get('REMOTE_ADDR', '')
+    if remote_address:
+        try:
+            remote_host = gethostbyaddr(remote_address)[0]
+        except:
+            return False
+        allowed_hosts = settings.CAS_LOGOUT_REQUEST_ALLOWED
+        return not allowed_hosts or remote_host in allowed_hosts
+    return False
+
 
 class CASMiddleware(object):
     """Middleware that allows CAS authentication on admin pages"""
@@ -32,6 +50,11 @@ class CASMiddleware(object):
         login URL, as well as calls to django.contrib.auth.views.login and
         logout.
         """
+        if view_func in (login, cas_login) and request.POST.get(
+            'logoutRequest', ''):
+            if cas_request_logout_allowed(request):
+                return cas_logout(request, *view_args, **view_kwargs)
+            return HttpResponseForbidden()
 
         if view_func == login:
             return cas_login(request, *view_args, **view_kwargs)
