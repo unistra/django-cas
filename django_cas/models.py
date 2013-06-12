@@ -8,6 +8,13 @@ from django_cas.exceptions import CasTicketException, CasConfigException
 # Ed Crewe - add in signals to delete old tickets
 from django.db.models.signals import post_save
 from datetime import datetime
+# Single Sign Out
+from django.contrib.auth import BACKEND_SESSION_KEY
+from django.contrib.auth.signals import user_logged_out, user_logged_in
+from django.contrib.sessions.backends.db import SessionStore
+from django.dispatch import receiver
+from django.utils.translation import ugettext_lazy as _
+
 
 class Tgt(models.Model):
     username = models.CharField(max_length = 255, unique = True)
@@ -69,3 +76,58 @@ def delete_old_tickets(**kwargs):
 
 post_save.connect(delete_old_tickets, sender=PgtIOU)
 #post_save.connect(delete_old_tickets, sender=Tgt)
+
+
+class SessionServiceTicket(models.Model):
+    """ Handles a mapping between the CAS Service Ticket and the session key
+    as long as user is connected to an application that uses the CASBackend
+    for authentication
+    """
+
+    service_ticket = models.CharField(_('service ticket'), max_length=256, primary_key=True)
+    session_key = models.CharField(_('session key'), max_length=40)
+
+    class Meta:
+        db_table = 'django_cas_session_service_ticket'
+        verbose_name = _('session service ticket')
+        verbose_name_plural = _('session service tickets')
+
+    def get_session(self):
+        """ Searches the session in store and returns it """
+        return SessionStore(session_key=self.session_key)
+
+    def __unicode__(self):
+        return self.ticket
+
+
+def _is_cas_backend(session):
+    """ Checks if the auth backend is CASBackend """
+    #Import CASBackend after Tgt and PgtIOU class declaration
+    from django_cas.backends import CASBackend
+    if session:
+        backend = session[BACKEND_SESSION_KEY]
+        return backend == '{0.__module__}.{0.__name__}'.format(CASBackend)
+    return None
+
+
+@receiver(user_logged_in)
+def map_service_ticket(sender, **kwargs):
+    """ Creates the mapping between a session key and a service ticket after user
+    logged in """
+    request = kwargs['request']
+    ticket = request.GET.get('ticket', '')
+    if ticket and _is_cas_backend(request.session):
+        session_key = request.session.session_key
+        SessionServiceTicket.objects.create(service_ticket=ticket,
+            session_key=session_key
+        )
+
+@receiver(user_logged_out)
+def delete_service_ticket(sender, **kwargs):
+    """ Deletes the mapping between session key and service ticket after user
+    logged out """
+    request = kwargs['request']
+    if _is_cas_backend(request.session):
+        session_key = request.session.session_key
+        SessionServiceTicket.objects.filter(session_key=session_key)\
+            .delete()
