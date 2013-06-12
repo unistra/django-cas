@@ -58,7 +58,7 @@ def gateway():
     def wrap(func):
         def wrapped_f(*args):
 
-            from cas.views import login
+            from django_cas.views import login
             request = args[0]
             
             if request.user.is_authenticated():

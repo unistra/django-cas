@@ -10,8 +10,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.core.exceptions import ImproperlyConfigured
 
-from cas.exceptions import CasTicketException
-from cas.views import login as cas_login, logout as cas_logout
+from django_cas.exceptions import CasTicketException
+from django_cas.views import login as cas_login, logout as cas_logout
 
 __all__ = ['CASMiddleware']
 

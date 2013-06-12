@@ -5,8 +5,8 @@ from urlparse import urljoin
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from cas.models import User, Tgt, PgtIOU
-from cas.utils import cas_response_callbacks
+from django_cas.models import User, Tgt, PgtIOU
+from django_cas.utils import cas_response_callbacks
 
 __all__ = ['CASBackend']
 
