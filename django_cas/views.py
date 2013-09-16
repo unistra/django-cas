@@ -162,9 +162,9 @@ def _get_session(samlp):
 
 def logout(request, next_page=None):
     """Redirects to CAS logout page"""
-    cas_logout_request = request.POST.get('logoutRequest', '')
+    cas_logout_request = request.POST.get('logoutRequest', [])
     if cas_logout_request:
-        session = _get_session(cas_logout_request)
+        session = _get_session(cas_logout_request[0])
         request.session = session
         
     from django.contrib.auth import logout
