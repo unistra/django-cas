@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.8.4'
+version = '1.0.1'
 
 setup(name='django-cas',
       version=version,
