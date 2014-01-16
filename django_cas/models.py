@@ -84,7 +84,7 @@ class SessionServiceTicket(models.Model):
     for authentication
     """
 
-    service_ticket = models.CharField(_('service ticket'), max_length=256, primary_key=True)
+    service_ticket = models.CharField(_('service ticket'), max_length=255, primary_key=True)
     session_key = models.CharField(_('session key'), max_length=40)
 
     class Meta:
