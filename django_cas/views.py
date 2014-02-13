@@ -16,6 +16,7 @@ from django_cas.models import SessionServiceTicket
 
 __all__ = ['login', 'logout']
 
+
 def _service_url(request, redirect_to=None, gateway=False):
     """Generates application service URL for CAS"""
 
@@ -30,7 +31,7 @@ def _service_url(request, redirect_to=None, gateway=False):
             service += '?'
         if gateway:
             """ If gateway, capture params and reencode them before returning a url """
-            gateway_params = [ (REDIRECT_FIELD_NAME, redirect_to), ('gatewayed','true') ]
+            gateway_params = [(REDIRECT_FIELD_NAME, redirect_to), ('gatewayed','true')]
             query_dict = request.GET.copy()
             try:
                 del query_dict['ticket']
@@ -74,19 +75,20 @@ def _redirect_url(request):
 
 def _login_url(service, ticket='ST', gateway=False):
     """Generates CAS login URL"""
-    LOGINS = {'ST':'login',
-              'PT':'proxyValidate'}
+    LOGINS = {'ST': 'login',
+              'PT': 'proxyValidate'}
     if gateway:
-        params = {'service': service, 'gateway':True}
+        params = {'service': service, 'gateway': True}
     else:
         params = {'service': service}
     if settings.CAS_EXTRA_LOGIN_PARAMS:
         params.update(settings.CAS_EXTRA_LOGIN_PARAMS)
     if not ticket:
         ticket = 'ST'
-    login = LOGINS.get(ticket[:2],'login')
+    login = LOGINS.get(ticket[:2], 'login')
 
     return urlparse.urljoin(settings.CAS_SERVER_URL, login) + '?' + urlencode(params)
+
 
 def _logout_url(request, next_page=None):
     """Generates CAS logout URL"""
@@ -144,6 +146,7 @@ def login(request, next_page=None, required=False, gateway=False):
         else:
             return HttpResponseRedirect(_login_url(service, ticket, False))
 
+
 def _get_session(samlp):
     """ Recovers the session mapped with the CAS service ticket
     received in the SAML CAS request at CAS logout
@@ -162,6 +165,7 @@ def _get_session(samlp):
         return None
     return sst.get_session()
 
+
 def logout(request, next_page=None):
     """Redirects to CAS logout page"""
     cas_logout_request = request.POST.get('logoutRequest', [])
@@ -171,12 +175,14 @@ def logout(request, next_page=None):
 
     from django.contrib.auth import logout
     logout(request)
+
     if not next_page:
         next_page = _redirect_url(request)
     if settings.CAS_LOGOUT_COMPLETELY:
         return HttpResponseRedirect(_logout_url(request, next_page))
     else:
         return HttpResponseRedirect(next_page)
+
 
 def proxy_callback(request):
     """Handles CAS 2.0+ XML-based proxy callback call.
@@ -199,4 +205,3 @@ def proxy_callback(request):
         return HttpResponse('PGT storage failed for %s' % str(request.GET), mimetype="text/plain")
 
     return HttpResponse('Success', mimetype="text/plain")
-

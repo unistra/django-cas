@@ -17,8 +17,8 @@ from django.utils.translation import ugettext_lazy as _
 
 
 class Tgt(models.Model):
-    username = models.CharField(max_length = 255, unique = True)
-    tgt = models.CharField(max_length = 255)
+    username = models.CharField(max_length=255, unique=True)
+    tgt = models.CharField(max_length=255)
 
     def get_proxy_ticket_for(self, service):
         """Verifies CAS 2.0+ XML-based authentication ticket.
@@ -50,20 +50,23 @@ class Tgt(models.Model):
         finally:
             page.close()
 
+
 class PgtIOU(models.Model):
     """ Proxy granting ticket and IOU """
-    pgtIou = models.CharField(max_length = 255, unique = True)
-    tgt = models.CharField(max_length = 255)
-    created = models.DateTimeField(auto_now = True)
+    pgtIou = models.CharField(max_length=255, unique=True)
+    tgt = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now=True)
+
 
 def get_tgt_for(user):
     if not settings.CAS_PROXY_CALLBACK:
         raise CasConfigException("No proxy callback set in settings")
 
     try:
-        return Tgt.objects.get(username = user.username)
+        return Tgt.objects.get(username=user.username)
     except ObjectDoesNotExist:
         raise CasTicketException("no ticket found for user " + user.username)
+
 
 def delete_old_tickets(**kwargs):
     """ Delete tickets if they are over 2 days old 
@@ -76,6 +79,11 @@ def delete_old_tickets(**kwargs):
 
 post_save.connect(delete_old_tickets, sender=PgtIOU)
 #post_save.connect(delete_old_tickets, sender=Tgt)
+
+#Import CASBackend after Tgt and PgtIOU class declaration
+from django_cas.backends import CASBackend
+
+cas_backend = '{0.__module__}.{0.__name__}'.format(CASBackend)
 
 
 class SessionServiceTicket(models.Model):
@@ -94,19 +102,19 @@ class SessionServiceTicket(models.Model):
 
     def get_session(self):
         """ Searches the session in store and returns it """
-        return SessionStore(session_key=self.session_key)
+        sst = SessionStore(session_key=self.session_key)
+        sst[BACKEND_SESSION_KEY] = cas_backend
+        return sst
 
     def __unicode__(self):
-        return self.ticket
+        return self.service_ticket
 
 
 def _is_cas_backend(session):
     """ Checks if the auth backend is CASBackend """
-    #Import CASBackend after Tgt and PgtIOU class declaration
-    from django_cas.backends import CASBackend
     if session:
-        backend = session[BACKEND_SESSION_KEY]
-        return backend == '{0.__module__}.{0.__name__}'.format(CASBackend)
+        backend = session.get(BACKEND_SESSION_KEY)
+        return backend == cas_backend
     return None
 
 
@@ -122,12 +130,11 @@ def map_service_ticket(sender, **kwargs):
             session_key=session_key
         )
 
+
 @receiver(user_logged_out)
 def delete_service_ticket(sender, **kwargs):
     """ Deletes the mapping between session key and service ticket after user
     logged out """
     request = kwargs['request']
-    if _is_cas_backend(request.session):
-        session_key = request.session.session_key
-        SessionServiceTicket.objects.filter(session_key=session_key)\
-            .delete()
+    session_key = request.session.session_key
+    SessionServiceTicket.objects.filter(session_key=session_key).delete()
