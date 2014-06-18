@@ -1,5 +1,9 @@
-from urlparse import urljoin
-from urllib import urlencode, urlopen
+# from urlparse import urljoin
+# from urllib import urlencode, urlopen
+from six.moves.urllib_parse import urlencode, urljoin
+from six.moves.urllib.request import urlopen
+# from six import urllib
+
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User

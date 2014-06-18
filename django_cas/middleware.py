@@ -1,6 +1,7 @@
 """CAS authentication middleware"""
 
-from urllib import urlencode
+# from urllib import urlencode
+from six.moves.urllib_parse import urlencode
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME

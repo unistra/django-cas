@@ -8,9 +8,9 @@ def cas_response_callbacks(tree):
         try:
             mod = __import__(module, fromlist=[''])
         except ImportError as e:
-            print "Import Error: %s" % e
+            print("Import Error: %s" % e)
         try:
             func = getattr(mod, callback)
-        except AttributeError, e:
-            print "Attribute Error: %s" % e
+        except AttributeError as e:
+            print("Attribute Error: %s" % e)
         func(tree)

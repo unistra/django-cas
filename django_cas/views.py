@@ -2,8 +2,10 @@
 
 """CAS login/logout replacement views"""
 from datetime import datetime
-from urllib import urlencode
-import urlparse
+# from urllib import urlencode
+from six.moves.urllib_parse import urlencode
+from six.moves import urllib_parse as urlparse
+
 from operator import itemgetter
 
 from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse

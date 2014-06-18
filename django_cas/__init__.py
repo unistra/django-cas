@@ -1,6 +1,7 @@
 """Django CAS 1.0/2.0 authentication backend"""
 
 from django.conf import settings
+from six import iteritems
 
 __all__ = []
 
@@ -21,7 +22,7 @@ _DEFAULTS = {
     'CAS_USER_CREATION': True
 }
 
-for key, value in _DEFAULTS.iteritems():
+for key, value in iteritems(_DEFAULTS):
     try:
         getattr(settings, key)
     except AttributeError:
