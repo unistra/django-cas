@@ -1,4 +1,4 @@
-# django-cas
+# django-cas-sso
 
 CAS client for Django.  This is K-State&#39;s fork of the original, which lives at
 https://bitbucket.org/cpcc/django-cas/overview.  This fork is actively maintaned and 

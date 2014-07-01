@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-version = '1.0.1'
+version = '1.1.0'
 
 def recursive_requirements(requirement_file, libs, links, path=''):
     if not requirement_file.startswith(path):
@@ -24,14 +24,14 @@ def recursive_requirements(requirement_file, libs, links, path=''):
 libraries, dependency_links = [], []
 recursive_requirements('requirements.txt', libraries, dependency_links)
 
-setup(name='django-cas',
+setup(name='django-cas-sso',
       version=version,
       install_requires=libraries,
       dependency_links=dependency_links,
-      description="Django Cas Client",
+      description="Django Cas SSO Client (inherited from django-cas)",
       long_description=open("./README.md", "r").read(),
       classifiers=[
-          "Development Status :: Development",
+          "Development Status :: 5 - Production/Stable",
           "Environment :: Console",
           "Intended Audience :: End Users/Desktop",
           "Natural Language :: English",
@@ -39,13 +39,17 @@ setup(name='django-cas',
           "Programming Language :: Python",
           "Topic :: Internet :: WWW/HTTP :: Dynamic Content :: CGI Tools/Libraries",
           "Topic :: Utilities",
-          "License :: OSI Approved :: Private",
+          "License :: OSI Approved :: BSD License",
           ],
-      keywords='k-state-common',
-      author='Derek Stegelman, Garrett Pennington',
-      author_email='derekst@k-state.edu, garrett@k-state.edu',
-      url='http://github.com/kstateome/django-cas/',
+      keywords=['django', 'cas', 'sso'],
+      author='di-dip-unistra',
+      author_email='di-dip@unistra.fr',
+      maintainer='di-dip-unistra',
+      maintainer_email='di-dip@unistra.fr',
+      url='http://github.com/unistra/django-cas/',
+      download_url='http://pypi.python.org/pypi/django-cas-sso',
       license='MIT',
+      entry_points={},
       packages=find_packages(),
       include_package_data=True,
       zip_safe=True,
