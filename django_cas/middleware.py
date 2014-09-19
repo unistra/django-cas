@@ -17,13 +17,22 @@ from django_cas.views import login as cas_login, logout as cas_logout
 __all__ = ['CASMiddleware']
 
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
 def cas_request_logout_allowed(request):
     """ Checks if the remote server is allowed to send cas logout request
     If nothing is set in the CAS_LOGOUT_REQUEST_ALLOWED parameter, all remote
     servers are allowed. Be careful !
     """
     from socket import gethostbyaddr
-    remote_address = request.META.get('REMOTE_ADDR', '')
+    remote_address = get_client_ip(request)
     if remote_address:
         try:
             remote_host = gethostbyaddr(remote_address)[0]
@@ -87,6 +96,7 @@ class CASMiddleware(object):
             return HttpResponseRedirect(request.path)
         else:
             return None
+
 
 class ProxyMiddleware(object):
 
