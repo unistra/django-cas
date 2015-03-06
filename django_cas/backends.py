@@ -32,12 +32,12 @@ def _verify_cas1(ticket, service):
         page.close()
 
 
-def _verify_cas2(ticket, service, 'proxyValidate'):
-    return _internal_verify_cas(ticket, service, 'proxyValidate')
+def _verify_cas2(ticket, service, sufix='proxyValidate'):
+    return _internal_verify_cas(ticket, service, sufix)
 
 
-def _verify_cas3(ticket, service, 'p3/proxyValidate'):
-    return _internal_verify_cas(ticket, service, 'p3/proxyValidate')
+def _verify_cas3(ticket, service, sufix='p3/proxyValidate'):
+    return _internal_verify_cas(ticket, service, sufix)
 
 
 def _internal_verify_cas(ticket, service, sufix):
