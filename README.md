@@ -1,5 +1,7 @@
 # django-cas-sso
 
+[![Code Health](https://landscape.io/github/unistra/django-cas/master/landscape.svg?style=flat)](https://landscape.io/github/unistra/django-cas/master)
+   
 CAS client for Django.  This is K-State&#39;s fork of the original, which lives at
 https://bitbucket.org/cpcc/django-cas/overview.  This fork is actively maintaned and 
 includes several new features.
