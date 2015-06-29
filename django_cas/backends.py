@@ -12,6 +12,7 @@ from django_cas.utils import cas_response_callbacks
 
 __all__ = ['CASBackend']
 
+
 def _verify_cas1(ticket, service):
     """Verifies CAS 1.0 authentication ticket.
 
@@ -61,7 +62,7 @@ def _verify_cas2(ticket, service):
         #from xml.etree import ElementTree
         #txt = ElementTree.tostring(tree)
         #print parseString(txt).toprettyxml()
-        
+
         if tree[0].tag.endswith('authenticationSuccess'):
             if settings.CAS_RESPONSE_CALLBACKS:
                 cas_response_callbacks(tree)
@@ -128,6 +129,8 @@ class CASBackend(object):
         if not username:
             return None
         try:
+            if settings.CAS_USERNAME_FORMAT:
+                username = settings.CAS_USERNAME_FORMAT(username)
             user = User.objects.get(username=username)
         except User.DoesNotExist:
             if settings.CAS_USER_CREATION:
