@@ -123,7 +123,7 @@ class CASBackend(object):
     supports_inactive_user = False
 
     def authenticate(self, ticket, service):
-        """Verifies CAS ticket and gets or User object
+        """Verifies CAS ticket and gets or create User object
             NB: Use of PT to identify proxy
         """
 
