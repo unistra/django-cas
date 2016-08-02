@@ -7,8 +7,10 @@ from six.moves.urllib.request import urlopen
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django_cas.models import User, Tgt, PgtIOU
+from django_cas.models import Tgt, PgtIOU
 from django_cas.utils import cas_response_callbacks
+from django.contrib.auth import get_user_model
+
 
 __all__ = ['CASBackend']
 
@@ -121,7 +123,7 @@ class CASBackend(object):
     supports_inactive_user = False
 
     def authenticate(self, ticket, service):
-        """Verifies CAS ticket and gets or creates User object
+        """Verifies CAS ticket and gets or create User object
             NB: Use of PT to identify proxy
         """
 
@@ -131,11 +133,11 @@ class CASBackend(object):
         try:
             if settings.CAS_USERNAME_FORMAT:
                 username = settings.CAS_USERNAME_FORMAT(username)
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
+            user = get_user_model().objects.get(username=username)
+        except get_user_model().DoesNotExist:
             if settings.CAS_USER_CREATION:
                 # user will have an "unusable" password
-                user = User.objects.create_user(username, '')
+                user = get_user_model().objects.create_user(username, '')
                 user.save()
             else:
                 return None
@@ -145,6 +147,6 @@ class CASBackend(object):
         """Retrieve the user's entry in the User model if it exists"""
 
         try:
-            return User.objects.get(pk=user_id)
-        except User.DoesNotExist:
+            return get_user_model().objects.get(pk=user_id)
+        except get_user_model().DoesNotExist:
             return None
