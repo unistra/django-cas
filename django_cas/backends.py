@@ -128,16 +128,17 @@ class CASBackend(object):
         """
 
         username = _verify(ticket, service)
+        user_model = get_user_model()
         if not username:
             return None
         try:
             if settings.CAS_USERNAME_FORMAT:
                 username = settings.CAS_USERNAME_FORMAT(username)
-            user = get_user_model().objects.get(username=username)
-        except get_user_model().DoesNotExist:
+            user = user_model.objects.get(username=username)
+        except user_model.DoesNotExist:
             if settings.CAS_USER_CREATION:
                 # user will have an "unusable" password
-                user = get_user_model().objects.create_user(username, '')
+                user = user_model.objects.create_user(username, '')
                 user.save()
             else:
                 return None
@@ -146,7 +147,8 @@ class CASBackend(object):
     def get_user(self, user_id):
         """Retrieve the user's entry in the User model if it exists"""
 
+        user_model = get_user_model()
         try:
-            return get_user_model().objects.get(pk=user_id)
-        except get_user_model().DoesNotExist:
+            return user_model.objects.get(pk=user_id)
+        except user_model.DoesNotExist:
             return None
