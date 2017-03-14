@@ -31,3 +31,16 @@ for key, value in iteritems(_DEFAULTS):
     # Suppress errors from DJANGO_SETTINGS_MODULE not being set
     except ImportError:
         pass
+
+
+def admin_prefix_warning():
+    from django.conf import settings
+    if getattr(settings, 'CAS_ADMIN_PREFIX', None) is not None:
+        import warnings
+        warnings.warn(
+            'The `CAS_ADMIN_PREFIX` is not working and will be '
+            'removed in version 1.1.5. If you want to disable CAS '
+            'authentication for django admin app, you should consider '
+            'the new `CAS_ADMIN_AUTH` setting',
+            DeprecationWarning
+        )
