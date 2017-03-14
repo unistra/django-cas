@@ -35,7 +35,6 @@ for key, value in iteritems(_DEFAULTS):
 
 
 def admin_prefix_warning():
-    from django.conf import settings
     if getattr(settings, 'CAS_ADMIN_PREFIX', None) is not None:
         import warnings
         warnings.warn(
