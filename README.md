@@ -33,6 +33,14 @@ Add these to ``settings.py`` to use the CAS Backend::
     CAS_SERVER_URL = "Your Cas Server"
     CAS_LOGOUT_COMPLETELY = True
 
+To disable CAS authentication for the entire django admin app, you should use the ``CAS_ADMIN_AUTH`` parameter::
+
+    CAS_ADMIN_AUTH = False
+
+
+The ``CAS_ADMIN_PREFIX`` is deprecated since version 1.1.4 and will be removed in 1.1.5 release.
+
+
 # Additional Features
 
 This fork contains additional features not found in the original:
