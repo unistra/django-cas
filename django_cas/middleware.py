@@ -80,7 +80,7 @@ class CASMiddleware(object):
             if not request.path.startswith(settings.CAS_ADMIN_PREFIX):
                 return None
 
-        # for all view modules except django admin. by default, we redirect to
+        # for all view modules except django admin. by default, we redirect to
         # cas for all admin views
         # for all other views, we treats the request with respect of views
         # configuration
