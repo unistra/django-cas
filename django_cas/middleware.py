@@ -14,6 +14,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django_cas.exceptions import CasTicketException
 from django_cas.views import login as cas_login, logout as cas_logout
 
+from . import admin_prefix_warning
+
+
 __all__ = ['CASMiddleware']
 
 
@@ -46,6 +49,9 @@ def cas_request_logout_allowed(request):
 class CASMiddleware(object):
     """Middleware that allows CAS authentication on admin pages"""
 
+    def _is_an_admin_view(self, view_func):
+        return view_func.__module__.startswith('django.contrib.admin.')
+
     def process_request(self, request):
         """Checks that the authentication middleware is installed"""
 
@@ -71,11 +77,19 @@ class CASMiddleware(object):
         elif view_func == logout:
             return cas_logout(request, *view_args, **view_kwargs)
 
+        # DEPRECATED
         if settings.CAS_ADMIN_PREFIX:
+            admin_prefix_warning()
             if not request.path.startswith(settings.CAS_ADMIN_PREFIX):
                 return None
-        elif not view_func.__module__.startswith('django.contrib.admin.'):
+
+        # for all view modules except django admin. by default, we redirect to
+        # cas for all admin views
+        # for all other views, we treats the request with respect of views
+        # configuration
+        if not (self._is_an_admin_view(view_func) and settings.CAS_ADMIN_AUTH):
             return None
+
 
         if request.user.is_authenticated():
             if request.user.is_staff:
