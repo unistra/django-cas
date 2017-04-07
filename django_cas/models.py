@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django_cas.exceptions import CasTicketException, CasConfigException
 # Ed Crewe - add in signals to delete old tickets
 from django.db.models.signals import post_save
-from datetime import datetime
+from datetime import datetime, timedelta
 # Single Sign Out
 from django.contrib.auth import BACKEND_SESSION_KEY
 from django.contrib.auth.signals import user_logged_out, user_logged_in
@@ -23,6 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 class Tgt(models.Model):
     username = models.CharField(max_length=255, unique=True)
     tgt = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now=True)
 
     def get_proxy_ticket_for(self, service):
         """Verifies CAS 2.0+ XML-based authentication ticket.
@@ -73,16 +74,16 @@ def get_tgt_for(user):
 
 
 def delete_old_tickets(**kwargs):
-    """ Delete tickets if they are over 2 days old 
+    """ Delete tickets if they are over 2 days old
         kwargs = ['raw', 'signal', 'instance', 'sender', 'created']
     """
     sender = kwargs.get('sender', None)
     now = datetime.now()
-    expire = datetime(now.year, now.month, now.day - 2)
+    expire = now - timedelta(days=2)
     sender.objects.filter(created__lt=expire).delete()
 
 post_save.connect(delete_old_tickets, sender=PgtIOU)
-#post_save.connect(delete_old_tickets, sender=Tgt)
+post_save.connect(delete_old_tickets, sender=Tgt)
 
 #Import CASBackend after Tgt and PgtIOU class declaration
 from django_cas.backends import CASBackend
