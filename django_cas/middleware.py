@@ -99,7 +99,9 @@ class CASMiddleware(object):
                          'privileges.</p>')
                 return HttpResponseForbidden(error)
         params = urlencode({REDIRECT_FIELD_NAME: request.get_full_path()})
-        return HttpResponseRedirect(reverse(cas_login) + '?' + params)
+        return HttpResponseRedirect(
+            '{}?{}'.format(reverse('django_cas:login'), params)
+        )
 
     def process_exception(self, request, exception):
         """When we get a CasTicketException, that is probably caused by the ticket timing out.
