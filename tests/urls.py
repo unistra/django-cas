@@ -1,12 +1,21 @@
-from django.conf.urls import url
-from django_cas.views import login, logout
+import django
+from django.conf.urls import url, include
 from . import views
 
 
+
 urlpatterns = [
-    url(r'/accounts/login/$', login, name='login'),
-    url(r'/accounts/logout/$', logout, name='logout'),
     url(r'^anonymous/', views.test_anonymous_view, name='anonymous'),
     url(r'^authenticated/', views.test_authenticated_view,
         name='authenticated'),
 ]
+
+
+if int(django.get_version().split('.')[1]) > 8:
+    urlpatterns.append(
+        url(r'^accounts/', include('django_cas.urls'))
+    )
+else:
+    urlpatterns.append(
+        url(r'^accounts/', include('django_cas.urls', namespace='django_cas'))
+    )

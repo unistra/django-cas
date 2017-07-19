@@ -13,6 +13,7 @@ if not settings.configured:
         INSTALLED_APPS=(
             'django.contrib.contenttypes',
             'django.contrib.auth',
+            'django.contrib.sessions',
             'django.contrib.admin',
             'django_cas',
             'tests'
@@ -30,6 +31,7 @@ if not settings.configured:
         ROOT_URLCONF='tests.urls',
         USE_TZ=True,
         SECRET_KEY='foobar',
+        SESSION_ENGINE= 'django.contrib.sessions.backends.db'
     )
 
 
