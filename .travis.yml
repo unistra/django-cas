@@ -1,0 +1,15 @@
+language: python
+python: "2.7"
+env:
+- TOX_ENV=py27-dj18
+- TOX_ENV=py34-dj18
+- TOX_ENV=py34-dj19
+- TOX_ENV=py36-dj18
+- TOX_ENV=py36-dj19
+
+install:
+ - pip install tox
+script: tox -e $TOX_ENV
+after_success:
+ - pip install coveralls
+ - coveralls
