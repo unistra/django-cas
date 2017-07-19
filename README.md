@@ -37,8 +37,17 @@ To disable CAS authentication for the entire django admin app, you should use th
 
     CAS_ADMIN_AUTH = False
 
+## Url namespace
 
-The ``CAS_ADMIN_PREFIX`` is deprecated since version 1.1.4 and will be removed in 1.1.5 release.
+Include `django_cas` urls :
+
+* if your django version is 1.8 or older (defining the namespace "django_cas" is required) :
+
+		url(r'your-base_uri/', include('django_cas.urls', namespace='django_cas'))
+
+* for version >= 1.9 (a default namespace "django_cas" will be set but you can set yours if you want) :
+
+		url(r'your-base_uri/', include('django_cas.urls'))
 
 
 # Additional Features

@@ -32,13 +32,6 @@ class TestCASMiddleware(TestCase):
         exception = cm.exception
         self.assertIn('Edit your MIDDLEWARE_CLASSES', str(exception))
 
-    @override_settings(CAS_ADMIN_PREFIX='/admin')
-    def test_cas_admin_deprecation(self):
-        with self.assertWarns(DeprecationWarning) as cm:
-            response = self.client.get('/anonymous/')
-
-        self.assertIn('removed in version 1.1.5', str(cm.warning))
-
     def test_normal_view(self):
         middleware = CASMiddleware()
         request = HttpRequest()

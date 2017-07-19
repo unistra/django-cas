@@ -14,8 +14,6 @@ from django.core.exceptions import ImproperlyConfigured
 from django_cas.exceptions import CasTicketException
 from django_cas.views import login as cas_login, logout as cas_logout
 
-from . import admin_prefix_warning
-
 
 __all__ = ['CASMiddleware']
 
@@ -76,12 +74,6 @@ class CASMiddleware(object):
             return cas_login(request, *view_args, **view_kwargs)
         elif view_func == logout:
             return cas_logout(request, *view_args, **view_kwargs)
-
-        # DEPRECATED
-        if settings.CAS_ADMIN_PREFIX:
-            admin_prefix_warning()
-            if not request.path.startswith(settings.CAS_ADMIN_PREFIX):
-                return None
 
         # for all view modules except django admin. by default, we redirect to
         # cas for all admin views
