@@ -11,6 +11,11 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.core.exceptions import ImproperlyConfigured
 
+try:
+    from django.utils.deprecation import MiddlewareMixin
+except ImportError:
+    MiddlewareMixin = object
+
 from django_cas.exceptions import CasTicketException
 from django_cas.views import login as cas_login, logout as cas_logout
 
@@ -44,7 +49,7 @@ def cas_request_logout_allowed(request):
     return False
 
 
-class CASMiddleware(object):
+class CASMiddleware(MiddlewareMixin):
     """Middleware that allows CAS authentication on admin pages"""
 
     def _is_an_admin_view(self, view_func):
@@ -52,7 +57,6 @@ class CASMiddleware(object):
 
     def process_request(self, request):
         """Checks that the authentication middleware is installed"""
-
         error = ("The Django CAS middleware requires authentication "
                  "middleware to be installed. Edit your MIDDLEWARE_CLASSES "
                  "setting to insert 'django.contrib.auth.middleware."
