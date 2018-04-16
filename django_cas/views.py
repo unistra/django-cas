@@ -108,7 +108,7 @@ def login(request, next_page=None, required=False, gateway=False):
 
     if not next_page:
         next_page = _redirect_url(request)
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return HttpResponseRedirect(next_page)
     ticket = request.GET.get('ticket')
 
