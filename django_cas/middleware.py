@@ -87,7 +87,7 @@ class CASMiddleware(MiddlewareMixin):
             return None
 
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             if request.user.is_staff:
                 return None
             else:
