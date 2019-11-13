@@ -11,19 +11,26 @@ if not settings.configured:
             },
         },
         INSTALLED_APPS=(
-            'django.contrib.contenttypes',
             'django.contrib.auth',
+            'django.contrib.contenttypes',
             'django.contrib.sessions',
-            'django.contrib.admin',
+            'django.contrib.sites',
             'django_cas',
             'tests'
         ),
-        MIDDLEWARE_CLASSES=(
+        MIDDLEWARE=(
             'django.middleware.common.CommonMiddleware',
             'django.contrib.sessions.middleware.SessionMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django_cas.middleware.CASMiddleware',
         ),
+        TEMPLATES=[
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': [],
+                'APP_DIRS': True,
+            },
+        ],
         AUTHENTICATION_BACKENDS=(
             'django.contrib.auth.backends.ModelBackend',
             'django_cas.backends.CASBackend'
@@ -31,7 +38,7 @@ if not settings.configured:
         ROOT_URLCONF='tests.urls',
         USE_TZ=True,
         SECRET_KEY='foobar',
-        SESSION_ENGINE= 'django.contrib.sessions.backends.db'
+        SESSION_ENGINE='django.contrib.sessions.backends.db'
     )
 
 

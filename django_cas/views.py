@@ -108,7 +108,7 @@ def login(request, next_page=None, required=False, gateway=False):
 
     if not next_page:
         next_page = _redirect_url(request)
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return HttpResponseRedirect(next_page)
     ticket = request.GET.get('ticket')
 
@@ -137,7 +137,7 @@ def login(request, next_page=None, required=False, gateway=False):
         else:
             #Has ticket, not session
             if getattr(settings, 'CAS_CUSTOM_FORBIDDEN'):
-                from django.core.urlresolvers import reverse
+                from django.urls import reverse
                 return HttpResponseRedirect(reverse(settings.CAS_CUSTOM_FORBIDDEN) + "?" + request.META['QUERY_STRING'] )
             else:
                 error = "<h1>Forbidden</h1><p>Login failed.</p>"

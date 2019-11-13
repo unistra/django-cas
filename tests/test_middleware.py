@@ -4,6 +4,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase, override_settings, modify_settings
 from django.http import HttpRequest, HttpResponseRedirect
 from django_cas.middleware import CASMiddleware
+
 from .views import test_anonymous_view, test_authenticated_view
 
 
@@ -22,7 +23,7 @@ class TestCASMiddleware(TestCase):
         )
 
 
-    @modify_settings(MIDDLEWARE_CLASSES={
+    @modify_settings(MIDDLEWARE={
         'remove': 'django.contrib.auth.middleware.AuthenticationMiddleware'
     })
     def test_authentication_middleware_needed(self):
@@ -30,7 +31,7 @@ class TestCASMiddleware(TestCase):
             response = self.client.get('/anonymous/')
 
         exception = cm.exception
-        self.assertIn('Edit your MIDDLEWARE_CLASSES', str(exception))
+        self.assertIn('Edit your MIDDLEWARE', str(exception))
 
     def test_normal_view(self):
         middleware = CASMiddleware()
