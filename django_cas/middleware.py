@@ -12,7 +12,7 @@ from django.core.exceptions import ImproperlyConfigured
 
 try:
     from django.contrib.auth.views import login, logout
-except:
+except ImportError:
     from django.contrib.auth import login, logout
 
 try:
@@ -62,7 +62,7 @@ class CASMiddleware(MiddlewareMixin):
     def process_request(self, request):
         """Checks that the authentication middleware is installed"""
         error = ("The Django CAS middleware requires authentication "
-                 "middleware to be installed. Edit your MIDDLEWARE_CLASSES "
+                 "middleware to be installed. Edit your MIDDLEWARE "
                  "setting to insert 'django.contrib.auth.middleware."
                  "AuthenticationMiddleware'.")
         assert hasattr(request, 'user'), error

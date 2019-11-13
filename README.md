@@ -22,7 +22,7 @@ https://bitbucket.org/cpcc/django-cas/overview
 
 Add the following to middleware if you want to use CAS::
     
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
     'django_cas.middleware.CASMiddleware',
     )
     
@@ -64,7 +64,7 @@ You will need to setup middleware to handle the use of proxies.
 
 Add a setting ``PROXY_DOMAIN`` of the domain you want the client to use.  Then add
 
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
     'django_cas.middleware.ProxyMiddleware',
     )
 
