@@ -2,19 +2,17 @@
 
 """CAS login/logout replacement views"""
 from datetime import datetime
-# from urllib import urlencode
-from six.moves.urllib_parse import urlencode
-from six.moves import urllib_parse as urlparse
-
 from operator import itemgetter
 
-from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponse
 from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
-from django_cas.models import PgtIOU
 from django.contrib import messages
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
 
-from django_cas.models import SessionServiceTicket
+from django_cas.models import PgtIOU, SessionServiceTicket
+# from urllib import urlencode
+from six.moves import urllib_parse as urlparse
+from six.moves.urllib_parse import urlencode
 
 __all__ = ['login', 'logout']
 
@@ -22,7 +20,10 @@ __all__ = ['login', 'logout']
 def _service_url(request, redirect_to=None, gateway=False):
     """Generates application service URL for CAS"""
 
-    protocol = ('http://', 'https://')[request.is_secure()]
+    if settings.CAS_FORCE_SSL_SERVICE_URL:
+        protocol = 'https://'
+    else:
+        protocol = ('http://', 'https://')[request.is_secure()]
     host = request.get_host()
     prefix = (('http://', 'https://')[request.is_secure()] + host)
     service = protocol + host + request.path
@@ -108,8 +109,16 @@ def login(request, next_page=None, required=False, gateway=False):
 
     if not next_page:
         next_page = _redirect_url(request)
-    if request.user.is_authenticated:
+
+    try:
+        # use callable for pre-django 2.0
+        is_authenticated = request.user.is_authenticated()
+    except TypeError:
+        is_authenticated = request.user.is_authenticated
+
+    if is_authenticated:
         return HttpResponseRedirect(next_page)
+
     ticket = request.GET.get('ticket')
 
     if gateway:
