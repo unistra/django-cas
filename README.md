@@ -6,7 +6,7 @@ CAS client for Django.  This is K-State&#39;s fork of the original, which lives 
 https://bitbucket.org/cpcc/django-cas/overview.  This fork is actively maintaned and
 includes several new features.
 
-Current version: 1.1.9 
+Current version: 1.1.9
 
 https://github.com/kstateome/django-cas
 

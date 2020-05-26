@@ -3,8 +3,8 @@ from setuptools import setup, find_packages
 
 version = '1.1.9'
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+with open('README.md') as readme:
+    long_description = readme.read()
 
 def recursive_requirements(requirement_file, libs, links, path=''):
     if not requirement_file.startswith(path):
