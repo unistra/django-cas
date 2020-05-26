@@ -3,6 +3,9 @@ from setuptools import setup, find_packages
 
 version = '1.1.9'
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 def recursive_requirements(requirement_file, libs, links, path=''):
     if not requirement_file.startswith(path):
         requirement_file = os.path.join(path, requirement_file)
@@ -29,7 +32,7 @@ setup(name='django-cas-sso',
       install_requires=libraries,
       dependency_links=dependency_links,
       description="Django Cas SSO Client (inherited from django-cas)",
-      long_description=open("README.md", "r").read(),
+      long_description=long_description,
       long_description_content_type='text/markdown',
       classifiers=[
           "Development Status :: 5 - Production/Stable",
