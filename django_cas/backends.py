@@ -1,13 +1,11 @@
 """CAS authentication backend"""
 
-#from urllib import urlencode, urlopen
-#from urlparse import urljoin
+# from urllib import urlencode, urlopen
+# from urlparse import urljoin
 from six.moves.urllib_parse import urlencode, urljoin
 from six.moves.urllib.request import urlopen
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
-from django_cas.models import Tgt, PgtIOU
 from django_cas.utils import cas_response_callbacks
 from django.contrib.auth import get_user_model
 
@@ -28,7 +26,7 @@ def _verify_cas1(ticket, service):
     try:
         verified = page.readline().strip()
         if verified == 'yes':
-            return page.readline().strip()
+            return {'username': page.readline().strip()}
         else:
             return None
     finally:
@@ -67,16 +65,16 @@ def _internal_verify_cas(ticket, service, sufix):
         response = page.read()
         tree = ElementTree.fromstring(response)
 
-        #Useful for debugging
-        #from xml.dom.minidom import parseString
-        #from xml.etree import ElementTree
-        #txt = ElementTree.tostring(tree)
-        #print parseString(txt).toprettyxml()
+        # Useful for debugging
+        # from xml.dom.minidom import parseString
+        # from xml.etree import ElementTree
+        # txt = ElementTree.tostring(tree)
+        # print parseString(txt).toprettyxml()
 
         if tree[0].tag.endswith('authenticationSuccess'):
             if settings.CAS_RESPONSE_CALLBACKS:
                 cas_response_callbacks(tree)
-            return tree[0][0].text
+            return {'username': tree[0][0].text}
         else:
             return None
     finally:
@@ -116,7 +114,41 @@ def verify_proxy_ticket(ticket, service):
     finally:
         page.close()
 
-_PROTOCOLS = {'1': _verify_cas1, '2': _verify_cas2, '3': _verify_cas3}
+
+def _verify_cas6(ticket, service):
+    from xml.etree import ElementTree
+    params = {'ticket': ticket, 'service': service}
+    if settings.CAS_PROXY_CALLBACK:
+        params['pgtUrl'] = settings.CAS_PROXY_CALLBACK
+
+    url = urljoin(settings.CAS_SERVER_URL, 'proxyValidate?') + urlencode(params)
+
+    page = urlopen(url)
+    try:
+        response = page.read()
+        tree = ElementTree.fromstring(response)
+
+        # this index match xml tag namespace length
+        ns_length = tree[0].tag.rfind('authenticationSuccess')
+        if ns_length < 0:
+            return None
+        else:
+            if settings.CAS_RESPONSE_CALLBACKS:
+                cas_response_callbacks(tree)
+            user_attributes = {'username': tree[0][0].text}
+            extra_info = tree[0][1:]
+            for element in extra_info:
+                if element.tag[ns_length:] == 'attributes':
+                    user_attributes.update({
+                        attribute.tag[ns_length:]: attribute.text
+                        for attribute in element
+                    })
+            return user_attributes
+    finally:
+        page.close()
+
+
+_PROTOCOLS = {'1': _verify_cas1, '2': _verify_cas2, '3': _verify_cas3, '6': _verify_cas6}
 
 if settings.CAS_VERSION not in _PROTOCOLS:
     raise ValueError('Unsupported CAS_VERSION %r' % settings.CAS_VERSION)
@@ -135,18 +167,24 @@ class CASBackend(object):
             NB: Use of PT to identify proxy
         """
 
-        username = _verify(ticket, service)
-        user_model = get_user_model()
+        user_data = _verify(ticket, service)
+        username = user_data.get('username', None)
         if not username:
             return None
+        if settings.CAS_USERNAME_FORMAT:
+            username = settings.CAS_USERNAME_FORMAT(username)
+        user_model = get_user_model()
+
         try:
-            if settings.CAS_USERNAME_FORMAT:
-                username = settings.CAS_USERNAME_FORMAT(username)
             user = user_model.objects.get(username=username)
         except user_model.DoesNotExist:
             if settings.CAS_USER_CREATION:
                 # user will have an "unusable" password
-                user = user_model.objects.create_user(username, '')
+                if settings.CAS_CUSTOM_CREATION:
+                    user_data.update({'username': username})
+                    user = settings.CAS_CUSTOM_CREATION(user_data)
+                else:
+                    user = user_model.objects.create_user(username, '')
                 user.save()
             else:
                 return None

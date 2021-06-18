@@ -1,12 +1,8 @@
-from datetime import timedelta
 from django.test import TestCase
 from django.contrib.sessions.models import Session
-from django.contrib.sessions.backends.db import SessionStore
 from django.conf import settings
 from django.core import management
-from django.utils import timezone
 from django_cas.models import SessionServiceTicket
-from django_cas.management.commands import  clearcassessions
 from importlib import import_module
 from testfixtures import LogCapture
 

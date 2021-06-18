@@ -13,7 +13,6 @@ import commands
 import getpass
 import urllib2
 import urllib
-from urlparse import urljoin
 import cookielib
 from xml.dom import minidom
 
