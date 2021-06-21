@@ -6,7 +6,7 @@ from six.moves.urllib_parse import urlencode, urljoin
 from six.moves.urllib.request import urlopen
 
 from django.conf import settings
-from django_cas.utils import cas_response_callbacks
+from django_cas.utils import cas_callbacks
 from django.contrib.auth import get_user_model
 
 
@@ -73,7 +73,7 @@ def _internal_verify_cas(ticket, service, sufix):
 
         if tree[0].tag.endswith('authenticationSuccess'):
             if settings.CAS_RESPONSE_CALLBACKS:
-                cas_response_callbacks(tree)
+                cas_callbacks(tree, settings.CAS_RESPONSE_CALLBACKS)
             return {'username': tree[0][0].text}
         else:
             return None
@@ -134,7 +134,7 @@ def _verify_cas6(ticket, service):
             return None
         else:
             if settings.CAS_RESPONSE_CALLBACKS:
-                cas_response_callbacks(tree)
+                cas_callbacks(tree, settings.CAS_RESPONSE_CALLBACKS)
             user_attributes = {'username': tree[0][0].text}
             extra_info = tree[0][1:]
             for element in extra_info:
@@ -167,27 +167,30 @@ class CASBackend(object):
             NB: Use of PT to identify proxy
         """
 
-        user_data = _verify(ticket, service)
-        username = user_data.get('username', None)
+        user_attributes = _verify(ticket, service)
+        username = user_attributes.get('username', None)
         if not username:
             return None
         if settings.CAS_USERNAME_FORMAT:
             username = settings.CAS_USERNAME_FORMAT(username)
+            user_attributes['username'] = username
         user_model = get_user_model()
 
         try:
             user = user_model.objects.get(username=username)
         except user_model.DoesNotExist:
-            if settings.CAS_USER_CREATION:
-                # user will have an "unusable" password
+            if not settings.CAS_USER_CREATION:
+                return None
+            else:
                 if settings.CAS_CUSTOM_CREATION:
-                    user_data.update({'username': username})
-                    user = settings.CAS_CUSTOM_CREATION(user_data)
+                    user = cas_callbacks(
+                        [user_model, user_attributes],
+                        settings.CAS_CUSTOM_CREATION
+                    )
                 else:
+                    # user will have an "unusable" password
                     user = user_model.objects.create_user(username, '')
                 user.save()
-            else:
-                return None
         return user
 
     def get_user(self, user_id):
