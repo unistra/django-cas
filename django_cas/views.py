@@ -20,7 +20,7 @@ __all__ = ['login', 'logout']
 def _service_url(request, redirect_to=None, gateway=False):
     """Generates application service URL for CAS"""
 
-    if settings.CAS_FORCE_SSL_SERVICE_URL:
+    if getattr(settings, 'CAS_FORCE_SSL_SERVICE_URL', False):
         protocol = 'https://'
     else:
         protocol = ('http://', 'https://')[request.is_secure()]
