@@ -9,7 +9,6 @@ from django.conf import settings
 from django_cas.utils import cas_callbacks
 from django.contrib.auth import get_user_model
 
-
 __all__ = ['CASBackend']
 
 
@@ -121,7 +120,7 @@ def _verify_cas6(ticket, service):
     if settings.CAS_PROXY_CALLBACK:
         params['pgtUrl'] = settings.CAS_PROXY_CALLBACK
 
-    url = urljoin(settings.CAS_SERVER_URL, 'proxyValidate?') + urlencode(params)
+    url = urljoin(settings.CAS_SERVER_URL, 'proxyValidate') + '?' + urlencode(params)
 
     page = urlopen(url)
     try:
