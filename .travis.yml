@@ -1,5 +1,5 @@
 language: python
-python: "3.6"
+python: "3.9"
 env:
 - TOX_ENV=py27-dj111
 - TOX_ENV=py35-dj111
@@ -8,6 +8,12 @@ env:
 - TOX_ENV=py36-dj111
 - TOX_ENV=py36-dj21
 - TOX_ENV=py36-dj22
+- TOX_ENV=py37-dj22
+- TOX_ENV=py38-dj22
+- TOX_ENV=py39-dj22
+- TOX_ENV=py37-dj32
+- TOX_ENV=py38-dj32
+- TOX_ENV=py39-dj32
 install:
  - pip install tox
 script: tox -e $TOX_ENV
