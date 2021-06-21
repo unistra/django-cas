@@ -104,18 +104,19 @@ Give its path to the settings file like this:
 		'path.to.module.user_creation_function',
 	)
 
-Provide the function in ``path/to/module.py``,  which receive user data as a dict and return user instance:
+Provide the function in ``path/to/module.py``,  
+which receive user data as a list of two items: ``[app_user_model, user_attributes_dict]``   
+and return created user instance:  
 
 	def user_creation_function(user_data):
-		user_model, user_attributes = *user_data
+		user_model, user_attributes = user_data
 		username = user_attributes['username']
 		email = user_attributes.get('email', '')
-		return user_model.objects.create_user(username, email)
-		
+		return user_model.objects.create_user(username, email)		
 
-Default config provide only the username.
-If ``CAS_VERSION = '6'`` then ticket verification function provide user_data as a dict of all attributes, defined 
-in your cas configuration file.
+Default settings provide only the username as user attributes.
+If ``CAS_VERSION = '6'`` then ticket verification function provide a dict of all attributes, 
+defined in your cas configuration file.
 
 ## CAS Gateway
 
