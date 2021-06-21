@@ -1,7 +1,7 @@
 import os
 from setuptools import setup, find_packages
 
-version = '1.1.8'
+version = '1.2.1'
 
 def recursive_requirements(requirement_file, libs, links, path=''):
     if not requirement_file.startswith(path):
