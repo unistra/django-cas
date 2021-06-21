@@ -1,7 +1,4 @@
-def cas_response_callbacks(tree):
-    from django.conf import settings
-    callbacks = []
-    callbacks.extend(settings.CAS_RESPONSE_CALLBACKS)
+def cas_callbacks(response_data, callbacks):
     for path in callbacks:
         i = path.rfind('.')
         module, callback = path[:i], path[i+1:]
@@ -13,4 +10,4 @@ def cas_response_callbacks(tree):
             func = getattr(mod, callback)
         except AttributeError as e:
             print("Attribute Error: %s" % e)
-        func(tree)
+        return func(response_data)

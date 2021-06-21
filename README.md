@@ -94,6 +94,28 @@ and create the functions in ``path/to/module.py``:
         profile.position = tree[0][2].text
         profile.save()
 
+### Custom User creation 
+
+If automated user creation is enabled (``CAS_USER_CREATION = True``), you can define a custom user creation function.
+
+Give its path to the settings file like this:
+
+	CAS_CUSTOM_CREATION = (
+		'path.to.module.user_creation_function',
+	)
+
+Provide the function in ``path/to/module.py``,  which receive user data as a dict and return user instance:
+
+	def user_creation_function(user_data):
+		user_model, user_attributes = *user_data
+		username = user_attributes['username']
+		email = user_attributes.get('email', '')
+		return user_model.objects.create_user(username, email)
+		
+
+Default config provide only the username.
+If ``CAS_VERSION = '6'`` then ticket verification function provide user_data as a dict of all attributes, defined 
+in your cas configuration file.
 
 ## CAS Gateway
 
