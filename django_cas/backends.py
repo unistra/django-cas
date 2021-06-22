@@ -184,7 +184,7 @@ class CASBackend(object):
                 if settings.CAS_CUSTOM_CREATION:
                     user = cas_callbacks(
                         [user_model, user_attributes],
-                        settings.CAS_CUSTOM_CREATION
+                        settings.CAS_USER_CREATION_CALLBACK
                     )
                 else:
                     # user will have an "unusable" password

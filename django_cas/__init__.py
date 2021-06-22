@@ -20,7 +20,8 @@ _DEFAULTS = {
     'CAS_CUSTOM_FORBIDDEN': None,
     'CAS_LOGOUT_REQUEST_ALLOWED': (),
     'CAS_USER_CREATION': True,
-    'CAS_USERNAME_FORMAT': None
+    'CAS_USER_CREATION_CALLBACK': None,
+    'CAS_USERNAME_FORMAT': None,
 }
 
 for key, value in iteritems(_DEFAULTS):

@@ -6,7 +6,7 @@ CAS client for Django.  This is K-State&#39;s fork of the original, which lives 
 https://bitbucket.org/cpcc/django-cas/overview.  This fork is actively maintaned and
 includes several new features.
 
-Current version: 1.2.2
+Current version: 1.2.3
 
 https://github.com/kstateome/django-cas
 
@@ -100,7 +100,7 @@ If automated user creation is enabled (``CAS_USER_CREATION = True``), you can de
 
 Give its path to the settings file like this:
 
-	CAS_CUSTOM_CREATION = (
+	CAS_USER_CREATION_CALLBACK = (
 		'path.to.module.user_creation_function',
 	)
 
