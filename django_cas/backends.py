@@ -181,7 +181,7 @@ class CASBackend(object):
             if not settings.CAS_USER_CREATION:
                 return None
             else:
-                if settings.CAS_CUSTOM_CREATION:
+                if settings.CAS_USER_CREATION_CALLBACK:
                     user = cas_callbacks(
                         [user_model, user_attributes],
                         settings.CAS_USER_CREATION_CALLBACK
