@@ -65,7 +65,7 @@ def _internal_verify_cas(ticket, service, sufix):
         else:
             user_data = {'username': success_data.get('user')}
             user_attributes = success_data.get('attributes', [])
-            user_data.update({key: user_attributes[key] for key in user_attributes})
+            user_data.update(user_attributes)
             if settings.CAS_RESPONSE_CALLBACKS:
                 cas_callbacks(user_data, settings.CAS_RESPONSE_CALLBACKS)
             return user_data

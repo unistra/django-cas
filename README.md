@@ -73,7 +73,7 @@ This middleware needs to be added before the django ``common`` middleware.
 
 ## CAS Response Callbacks
 
-To store data from CAS, create a callback function that accepts the ElementTree object from the
+To store data from CAS, create a callback function that accepts the dict from the
 proxyValidate response. There can be multiple callbacks, and they can live anywhere. Define the
 callback(s) in ``settings.py``:
 
@@ -84,14 +84,17 @@ callback(s) in ``settings.py``:
 
 and create the functions in ``path/to/module.py``:
 
-    def callbackfunction(tree):
-        username = tree[0][0].text
+    def callbackfunction(attribute_dict):
+		# direct access
+        username = attribute_dict.get('username')
 
         user, user_created = User.objects.get_or_create(username=username)
         profile, created = user.get_profile()
 
-        profile.email = tree[0][1].text
-        profile.position = tree[0][2].text
+		# ldap monovalued field
+        profile.email = attribute_dict.get('mail',[''])[0]
+		# ldap multivalued field
+        profile.affiliations = attribute_dict.get('eduPersonAffiliation',[])
         profile.save()
 
 ### Custom User creation 
@@ -115,7 +118,7 @@ and return created user instance:
 		return user_model.objects.create_user(username, email)		
 
 With default settings ticket verification provide a dict of all attributes defined in your CAS server configuration file.
-If ``CAS_VERSION`` setting is lower than 3 then it provides only the username as user attributes. 
+If ``CAS_VERSION`` setting is lower than 3 then dict contains only the username. 
 
 ## CAS Gateway
 
