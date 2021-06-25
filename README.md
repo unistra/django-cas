@@ -6,7 +6,7 @@ CAS client for Django.  This is K-State&#39;s fork of the original, which lives 
 https://bitbucket.org/cpcc/django-cas/overview.  This fork is actively maintaned and
 includes several new features.
 
-Current version: 1.2.4
+Current version: 1.2.5
 
 https://github.com/kstateome/django-cas
 
@@ -114,9 +114,8 @@ and return created user instance:
 		email = user_attributes.get('email', '')
 		return user_model.objects.create_user(username, email)		
 
-Default settings provide only the username as user attributes.
-If ``CAS_VERSION = '6'`` then ticket verification function provide a dict of all attributes, 
-defined in your cas configuration file.
+With default settings ticket verification provide a dict of all attributes defined in your CAS server configuration file.
+If ``CAS_VERSION`` setting is lower than 3 then it provides only the username as user attributes. 
 
 ## CAS Gateway
 

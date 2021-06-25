@@ -1,5 +1,5 @@
 """CAS authentication backend"""
-
+import json
 # from urllib import urlencode, urlopen
 # from urlparse import urljoin
 from six.moves.urllib_parse import urlencode, urljoin
@@ -8,6 +8,7 @@ from six.moves.urllib.request import urlopen
 from django.conf import settings
 from django_cas.utils import cas_callbacks
 from django.contrib.auth import get_user_model
+
 
 __all__ = ['CASBackend']
 
@@ -27,7 +28,7 @@ def _verify_cas1(ticket, service):
         if verified == 'yes':
             return {'username': page.readline().strip()}
         else:
-            return None
+            return {}
     finally:
         page.close()
 
@@ -43,39 +44,31 @@ def _verify_cas3(ticket, service, sufix='p3/proxyValidate'):
 def _internal_verify_cas(ticket, service, sufix):
     """Verifies CAS 2.0 and 3.0  XML-based authentication ticket.
 
-    Returns username on success and None on failure.
+    Returns user_data as a dict
     """
 
-    try:
-        from xml.etree import ElementTree
-    except ImportError:
-        from elementtree import ElementTree
-
+    params = {'ticket': ticket, 'service': service, 'format': 'JSON'}
     if settings.CAS_PROXY_CALLBACK:
-        params = {'ticket': ticket, 'service': service, 'pgtUrl': settings.CAS_PROXY_CALLBACK}
-    else:
-        params = {'ticket': ticket, 'service': service}
+        params['pgtUrl'] = settings.CAS_PROXY_CALLBACK
 
     url = (urljoin(settings.CAS_SERVER_URL, sufix) + '?' +
            urlencode(params))
 
     page = urlopen(url)
     try:
-        response = page.read()
-        tree = ElementTree.fromstring(response)
+        service_response = json.loads(page.read()).get('serviceResponse')
 
-        # Useful for debugging
-        # from xml.dom.minidom import parseString
-        # from xml.etree import ElementTree
-        # txt = ElementTree.tostring(tree)
-        # print parseString(txt).toprettyxml()
+        success_data = service_response.get('authenticationSuccess')
 
-        if tree[0].tag.endswith('authenticationSuccess'):
-            if settings.CAS_RESPONSE_CALLBACKS:
-                cas_callbacks(tree, settings.CAS_RESPONSE_CALLBACKS)
-            return {'username': tree[0][0].text}
+        if not success_data:
+            return {}
         else:
-            return None
+            user_data = {'username': success_data.get('user')}
+            user_attributes = success_data.get('attributes', [])
+            user_data.update({key: user_attributes[key] for key in user_attributes})
+            if settings.CAS_RESPONSE_CALLBACKS:
+                cas_callbacks(user_data, settings.CAS_RESPONSE_CALLBACKS)
+            return user_data
     finally:
         page.close()
 
@@ -109,45 +102,12 @@ def verify_proxy_ticket(ticket, service):
                     proxies.append(element.text)
             return {"username": username, "proxies": proxies}
         else:
-            return None
+            return {}
     finally:
         page.close()
 
 
-def _verify_cas6(ticket, service):
-    from xml.etree import ElementTree
-    params = {'ticket': ticket, 'service': service}
-    if settings.CAS_PROXY_CALLBACK:
-        params['pgtUrl'] = settings.CAS_PROXY_CALLBACK
-
-    url = urljoin(settings.CAS_SERVER_URL, 'proxyValidate') + '?' + urlencode(params)
-
-    page = urlopen(url)
-    try:
-        response = page.read()
-        tree = ElementTree.fromstring(response)
-
-        # this index match xml tag namespace length
-        ns_length = tree[0].tag.rfind('authenticationSuccess')
-        if ns_length < 0:
-            return None
-        else:
-            if settings.CAS_RESPONSE_CALLBACKS:
-                cas_callbacks(tree, settings.CAS_RESPONSE_CALLBACKS)
-            user_attributes = {'username': tree[0][0].text}
-            extra_info = tree[0][1:]
-            for element in extra_info:
-                if element.tag[ns_length:] == 'attributes':
-                    user_attributes.update({
-                        attribute.tag[ns_length:]: attribute.text
-                        for attribute in element
-                    })
-            return user_attributes
-    finally:
-        page.close()
-
-
-_PROTOCOLS = {'1': _verify_cas1, '2': _verify_cas2, '3': _verify_cas3, '6': _verify_cas6}
+_PROTOCOLS = {'1': _verify_cas1, '2': _verify_cas2, '3': _verify_cas3}
 
 if settings.CAS_VERSION not in _PROTOCOLS:
     raise ValueError('Unsupported CAS_VERSION %r' % settings.CAS_VERSION)
