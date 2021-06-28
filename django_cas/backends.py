@@ -58,13 +58,18 @@ def _internal_verify_cas(ticket, service, sufix):
     try:
         service_response = json.loads(page.read()).get('serviceResponse')
 
+        # debug code
+        # from pprint import PrettyPrinter
+        # pp = PrettyPinter(indent=2)
+        # pp.pprint(service_response)
+
         success_data = service_response.get('authenticationSuccess')
 
         if not success_data:
             return {}
         else:
             user_data = {'username': success_data.get('user')}
-            user_attributes = success_data.get('attributes', [])
+            user_attributes = success_data.get('attributes', {})
             user_data.update(user_attributes)
             if settings.CAS_RESPONSE_CALLBACKS:
                 cas_callbacks(user_data, settings.CAS_RESPONSE_CALLBACKS)
