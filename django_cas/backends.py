@@ -72,7 +72,7 @@ def _internal_verify_cas(ticket, service, sufix):
             user_attributes = success_data.get('attributes', {})
             user_data.update(user_attributes)
             if settings.CAS_RESPONSE_CALLBACKS:
-                cas_callbacks(user_data, settings.CAS_RESPONSE_CALLBACKS)
+                cas_callbacks(user_data.copy(), settings.CAS_RESPONSE_CALLBACKS)
             return user_data
     finally:
         page.close()
