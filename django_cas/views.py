@@ -7,12 +7,14 @@ from operator import itemgetter
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseRedirect
-
-from django_cas.models import PgtIOU, SessionServiceTicket
+from django.http import (
+    HttpResponse, HttpResponseForbidden, HttpResponseRedirect,
+)
 # from urllib import urlencode
 from six.moves import urllib_parse as urlparse
 from six.moves.urllib_parse import urlencode
+
+from django_cas.models import PgtIOU, SessionServiceTicket
 
 __all__ = ['login', 'logout']
 
@@ -100,7 +102,7 @@ def _logout_url(request, next_page=None):
     if next_page:
         protocol = ('http://', 'https://')[request.is_secure()]
         host = request.get_host()
-        url += '?' + urlencode({'url': protocol + host + next_page})
+        url += '?' + urlencode({'service': protocol + host + next_page})
     return url
 
 
