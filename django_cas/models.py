@@ -17,7 +17,7 @@ from django.contrib.auth import BACKEND_SESSION_KEY
 from django.contrib.auth.signals import user_logged_out, user_logged_in
 from django.contrib.sessions.backends.db import SessionStore
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class Tgt(models.Model):
@@ -73,7 +73,7 @@ def get_tgt_for(user):
 
 
 def delete_old_tickets(**kwargs):
-    """ Delete tickets if they are over 2 days old 
+    """ Delete tickets if they are over 2 days old
         kwargs = ['raw', 'signal', 'instance', 'sender', 'created']
     """
     sender = kwargs.get('sender', None)
