@@ -18,10 +18,16 @@ https://bitbucket.org/cpcc/django-cas/overview
 
 ## Settings.py for CAS
 
-Add the following to middleware if you want to use CAS::
+Add the following to middleware if you want to use CAS:
 
     MIDDLEWARE = (
-    'django_cas.middleware.CASMiddleware',
+        'django_cas.middleware.CASMiddleware',
+    )
+
+Set or add the CAS Backend to the authentication backends:
+    
+    AUTHENTICATION_BACKENDS = (
+        'django_cas.backends.CASBackend',
     )
 
 Add these to `settings.py` to use the CAS Backend::
@@ -41,9 +47,16 @@ Include `django_cas` urls :
 
       		url(r'your-base_uri/', include('django_cas.urls', namespace='django_cas'))
 
-- for version >= 1.9 (a default namespace "django_cas" will be set but you can set yours if you want) :
+- for django version >= 1.9 (a default namespace "django_cas" will be set but you can set yours if you want) :
 
       		url(r'your-base_uri/', include('django_cas.urls'))
+
+- for django version >= 2.0
+ 
+            `path('/your-base_uri/', include('django_cas.urls'))`
+
+If `your-base_uri` is different from `accounts` (Django's default) you will have to change the `LOGIN_URL` parameter 
+in the settings: `LOGIN_URL=/your-base_uri/login/`.
 
 # Additional Features
 
