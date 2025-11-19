@@ -11,7 +11,10 @@ from six.moves.urllib_parse import urlencode
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden, HttpResponseRedirect
-from django.utils.http import urlquote
+try:
+    from django.utils.http import urlquote
+except ImportError:
+    from urllib.parse import quote as urlquote
 
 __all__ = ['login_required', 'permission_required', 'user_passes_test']
 
@@ -62,7 +65,7 @@ def gateway():
 
             from django_cas.views import login
             request = args[0]
-            
+
             if request.user.is_authenticated():
                 #Is Authed, fine
                 pass
@@ -80,7 +83,7 @@ def gateway():
                     else:
                         #Not Authed, try to authenticate
                         return login(request, path_with_params, False, True)
-                
+
             return func(*args)
         return wrapped_f
     return wrap
